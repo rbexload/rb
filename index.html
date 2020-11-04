@@ -1,0 +1,573 @@
+<html>
+    
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<style>
+ 
+ .bdc,input[type=number],input[type=text]{
+     border-radius: 25px;
+     font-family:Arial;
+    margin: 1px; /* Space from this element (entire page) and others*/
+    padding: 8px; /*space from content and border*/
+    border: #7b1fa2;
+   border-width:2px;
+border-style:solid;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+.myButton {
+	box-shadow:inset 0px 1px 0px 0px #8532a8;
+	background:linear-gradient(to bottom, #7b1fa2 5%, #8b0bc2 100%);
+	background-color:#7b1fa2;
+	border-radius:3px;
+	border:1px solid #922abf;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:16px;
+	font-weight:bold;
+	padding:17px 0px;
+    width: 80%;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #154682;
+}
+.myButton:hover {
+	background:linear-gradient(to bottom, #8b0bc2 5%, #7b1fa2 100%);
+	background-color:#8b0bc2;
+}
+.myButton:active {
+	position:relative;
+	top:1px;
+}
+
+</style>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#symblist").change(function () {
+     $("#symb").val($(this).find(':selected').val());//($(this).find(':selected').data('picone'));
+     $("#qtytm").val($(this).find(':selected').data('qty'));
+     $("#qtytm").trigger("change");
+     if($(this).find(':selected').data('exch')==2)
+     {
+       //$('input[id=mcnse][value=2]').attr('checked', true); 
+       $("input[name=mcnse][value=" + 2 + "]").prop('checked', true);
+       $("input[name=mcnse][value=" + 2 + "]").trigger("change");
+     }
+     if($(this).find(':selected').data('exch')==1)
+     {
+        $("input[name=mcnse][value=" + 1 + "]").prop('checked', true);
+        $("input[name=mcnse][value=" + 1 + "]").trigger("change");
+       // $('input[id=mcnse][value=1]').attr('checked', true);
+     }
+    
+});
+}); 
+
+</script>
+<script>
+    function myFunction() {
+
+            var yrdt = document.getElementById("yrdt").value;
+            var mnth = document.getElementById("mnth").value;
+            var dtdt = document.getElementById("dtdt").value;
+            var hrdt = document.getElementById("hrdt").value;
+            var mndt = document.getElementById("mndt").value;
+            var secdt = document.getElementById("secdt").value;
+            var milidt = document.getElementById("milidt").value;
+
+            var ftd='20'+yrdt+'-'+mnth+'-'+dtdt+' '+hrdt+':'+mndt+':'+secdt+'.'+milidt;
+
+            var tm = 0 + hrdt;
+
+            var ran = Number(getRand(Number(milidt),984));
+
+            var ord =''+yrdt+mnth+dtdt+ Number(tm).toString()+mndt+secdt+ran;
+
+            document.getElementById('dtlbl').innerHTML=ftd;
+            document.getElementById('ordnolbl').value=ord;
+
+}
+function getRand(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function setdt(){
+
+var d = new Date();
+document.getElementById("yrdt").value = d.getFullYear().toString().substr(-2);
+document.getElementById("mnth").value = 1+Number((d.getMonth() < 10 ? '0' : '') + d.getMonth());
+document.getElementById("dtdt").value = (d.getDate() < 10 ? '0' : '') + d.getDate();
+document.getElementById("hrdt").value = (d.getHours() < 10 ? '0' : '') + d.getHours();
+document.getElementById("mndt").value = (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+document.getElementById("secdt").value = (d.getSeconds() < 10 ? '0' : '') + d.getSeconds();
+document.getElementById("milidt").value = addZero(d.getMilliseconds(), 3);
+myFunction();
+}
+function addZero(x, n) {
+  while (x.toString().length < n) {
+    x = "0" + x;
+  }
+  return x;
+}
+function radcolorg()
+{
+    document.getElementById("bsradio").style.backgroundColor= "#029202";//g
+}
+function radcolorr()
+{
+   
+    document.getElementById("bsradio").style.backgroundColor= "#b30000";//r 
+}
+function mccolorg()
+{
+    document.getElementById("mcnseradio").style.backgroundColor= "#cfbb00";//g
+}
+function mccolorr()
+{
+    document.getElementById("mcnseradio").style.backgroundColor= "#0300a3";//b 
+}
+function setsymb()
+{
+    document.getElementById('symb').value= document.getElementById('symblist').value;
+}
+function calcq()
+{
+    var fqty = Number(document.getElementById('qtytm').value)*Number(document.getElementById('qtytmp').value);
+    document.getElementById('qty').value= fqty;
+}
+function finalexe(form)
+{
+    var fdate = document.getElementById('dtlbl').innerHTML;
+    var fordno = document.getElementById('ordnolbl').value;
+    var fprice = document.getElementById('price').value;
+    var fqty = document.getElementById('qty').value;
+    var fsymb = document.getElementById('symb').value;
+    var fbs = 1;
+    var bsf = 'BUY';
+    if(form.bs[1].checked == true )
+    {
+        fbs = 2;
+        bsf = 'SELL';
+    }
+    var fmcnse = 1;
+    var mcnsef = 'MCX';
+    if(form.mcnse[1].checked == true )
+    {
+        fmcnse = 2;
+        mcnsef = 'NSEFUT';
+    }
+   // alert(''+fdate+"\n"+fordno+"\n"+fprice+"\n"+fqty+"\n"+fsymb+"\n"+fbs+"\n"+fmcnse)
+
+    var fqry = " USE [RBexch] \n DECLARE @CreateDate datetime \n DECLARE @Orderno bigint \n DECLARE @NEWOrderno bigint \n DECLARE @Clientcode nvarchar(25) \n DECLARE @Symb nvarchar(50) \n DECLARE @PriceP nvarchar(50) \n DECLARE @Qty int \n DECLARE @BuySell int \n DECLARE @Exch int \n \n SET @Clientcode = 'neekeshfno' \n SET @CreateDate = '"+fdate+"' \n SET @Orderno =    '"+fordno+"' \n SET @PriceP = '"+fprice+"' \n SET @Qty = "+fqty+" \n SET @BuySell = "+fbs+" \n SET @Exch = "+fmcnse+" \n SET @Symb = '"+fsymb+"' \n \n INSERT INTO [dbo].[Orders] ([Symbol],[Exch],[BuySell],[Productype],[Qty],[OrdPrice],[Price],[Orderno],[Validity],[Userremarks],[Clientcode],[Traderid],[Createon],[Lastmodified],[OrdStatus],[IsAdmin],[IsMaintenance],[ExecType]) \n VALUES ( @Symb,@Exch,@BuySell,1,@Qty,@PriceP,@PriceP,@Orderno,1,'Mobile',@Clientcode,@Clientcode,@CreateDate,@CreateDate,1,0,0,2); \n \n INSERT INTO [RBexch].[dbo].[Trade]( [Clientcode],[Symbol],[Qty],[Orderno],[Price],[Timestamp],[BuySell],[Exch]) VALUES ( @Clientcode,@Symb,@Qty,@Orderno,(select convert(float,@PriceP)),@CreateDate,@BuySell,@Exch ); \n select * from  [dbo].[Orders] where Clientcode='neekeshfno';";
+
+   document.getElementById('qry').innerHTML=''; 
+   document.getElementById('qry').innerHTML=fqry;
+
+   document.getElementById('qry').focus();
+   document.getElementById('qry').select();
+
+
+  try {
+    var successful = document.execCommand('copy');
+     var msg = successful ? 'successful' : 'ERROR';
+    alert(' ' + msg +'\n '+fordno+'\n '+fsymb+'\n Price : '+fprice+'\n Qty : '+fqty+'\n '+bsf+'\n Exch :'+mcnsef);
+    window.location.href = "whatsapp://send?text="+fqry.replace(/\n/g, "%0a");
+ 
+  } catch (err) {
+    alert('Oops, unable to copy');
+  }
+
+}
+
+</script>
+    </head>
+    <body  onload="setdt()">
+        <br><br>
+      <div class="bdc">
+        <form>
+            <div>
+                <label for="name" class="lbl"> Date :</label>
+                 <input type="number" value="20"  class="lbl" id="yrdt" max="21" min="20" size="2" onchange="myFunction()"/> - 
+                 <input type="number" class="lbl" id="mnth" max="12" min="1" size="2" onchange="myFunction()"/> - 
+                 <input type="number" class="lbl" id="dtdt" max="31" min="1" size="2" onchange="myFunction()"/> <br/> Time :
+                 <input type="number" class="lbl" id="hrdt" max="23" min="09"size="2" onchange="myFunction()"/> : 
+                 <input type="number" class="lbl" id="mndt" max="59" min="00"size="2" onchange="myFunction()"/> :
+                 <input type="number" class="lbl" id="secdt" max="59" min="00"size="2" onchange="myFunction()"/> .
+                <input type="number" class="lbl" id="milidt" max="999" min="000"size="3" onchange="myFunction()"/>
+              </div>
+<br>
+              <div>
+                <label for="name" class="lbl"> Date :</label>
+                <label for="name" class="lbl" id="dtlbl"> </label>
+              </div>
+<br>
+              <div >
+                <label for="name" class="lbl"> Orderno :</label>
+                <input type="text"   class="lbl" id="ordnolbl"/>
+              </div>
+              <br>
+              <div>
+                <label for="name" class="lbl"> Price :</label>
+                <input type="text"  size="8" class="lbl" id="price"/>
+              </div>
+              <br>
+              <div>
+                <label for="qtytm" class="lbl"> Qty     :</label>
+                <input type="number"  size="5" class="lbl" id="qtytm" onchange="calcq()"/> <br>
+                <label for="qtytmp" class="lbl"> Qty X :</label>
+                 <input type="number"  size="3" class="lbl" id="qtytmp" max="3" value="1" onchange="calcq()"/> = 
+                <input type="number"  size="7" class="lbl" id="qty" disabled/>
+              </div>
+              <br>
+             
+              <div id="bsradio" style="background: #029202; color: #ffffff;">
+                <input  type="radio"  id="bs" name="bs" value="1" onchange="radcolorg()" checked> Buy
+                    <input type="radio"  id="bs" name="bs" onchange="radcolorr()" value="2"> Sell
+              </div>
+              <br>
+              <div id="mcnseradio" style="background: #cfbb00; color: #ffffff;">
+                <input type="radio" id="mcnse" name="mcnse" value="1" onchange="mccolorg()" checked> MCX
+                <input type="radio" id="mcnse" name="mcnse" value="2" onchange="mccolorr()"> NSEFUT
+              </div>
+              <br>
+              <div>
+                <label for="name" class="lbl"> Symbol :</label>
+                <input type="text" size="32" class="lbl" id="symb"/><br>
+                <label for="name" class="lbl"> Symbol :</label>
+                <select id="symblist" class="bdc">
+                    <option value="ACC 26NOV2020" data-qty=500 data-exch=2>ACC 26NOV2020</option>
+                    <option value="ACC 31DEC2020" data-qty=500 data-exch=2>ACC 31DEC2020</option>
+                    <option value="ADANIENT 26NOV2020" data-qty=2000 data-exch=2>ADANIENT 26NOV2020</option>
+                    <option value="ADANIENT 31DEC2020" data-qty=4000 data-exch=2>ADANIENT 31DEC2020</option>
+                    <option value="ADANIPORTS 26NOV2020" data-qty=2500 data-exch=2>ADANIPORTS 26NOV2020</option>
+                    <option value="ADANIPORTS 31DEC2020" data-qty=2500 data-exch=2>ADANIPORTS 31DEC2020</option>
+                    <option value="ALUMINIUM 27NOV2020" data-qty=5000 data-exch=1>ALUMINIUM 27NOV2020</option>
+                    <option value="ALUMINIUM 31DEC2020" data-qty=5000 data-exch=1>ALUMINIUM 31DEC2020</option>
+                    <option value="AMARAJABAT 26NOV2020" data-qty=1000 data-exch=2>AMARAJABAT 26NOV2020</option>
+                    <option value="AMARAJABAT 31DEC2020" data-qty=1000 data-exch=2>AMARAJABAT 31DEC2020</option>
+                    <option value="AMBUJACEM 26NOV2020" data-qty=3000 data-exch=2>AMBUJACEM 26NOV2020</option>
+                    <option value="AMBUJACEM 31DEC2020" data-qty=3000 data-exch=2>AMBUJACEM 31DEC2020</option>
+                    <option value="APOLLOHOSP 26NOV2020" data-qty=500 data-exch=2>APOLLOHOSP 26NOV2020</option>
+                    <option value="APOLLOHOSP 31DEC2020" data-qty=500 data-exch=2>APOLLOHOSP 31DEC2020</option>
+                    <option value="APOLLOTYRE 26NOV2020" data-qty=5000 data-exch=2>APOLLOTYRE 26NOV2020</option>
+                    <option value="APOLLOTYRE 31DEC2020" data-qty=5000 data-exch=2>APOLLOTYRE 31DEC2020</option>
+                    <option value="ASHOKLEY 26NOV2020" data-qty=9000 data-exch=2>ASHOKLEY 26NOV2020</option>
+                    <option value="ASHOKLEY 31DEC2020" data-qty=9000 data-exch=2>ASHOKLEY 31DEC2020</option>
+                    <option value="ASIANPAINT 26NOV2020" data-qty=300 data-exch=2>ASIANPAINT 26NOV2020</option>
+                    <option value="ASIANPAINT 31DEC2020" data-qty=300 data-exch=2>ASIANPAINT 31DEC2020</option>
+                    <option value="AUROPHARMA 26NOV2020" data-qty=650 data-exch=2>AUROPHARMA 26NOV2020</option>
+                    <option value="AUROPHARMA 31DEC2020" data-qty=1300 data-exch=2>AUROPHARMA 31DEC2020</option>
+                    <option value="AXISBANK 26NOV2020" data-qty=1200 data-exch=2>AXISBANK 26NOV2020</option>
+                    <option value="AXISBANK 31DEC2020" data-qty=1200 data-exch=2>AXISBANK 31DEC2020</option>
+                    <option value="BAJAJ-AUTO 26NOV2020" data-qty=250 data-exch=2>BAJAJ-AUTO 26NOV2020</option>
+                    <option value="BAJAJ-AUTO 31DEC2020" data-qty=250 data-exch=2>BAJAJ-AUTO 31DEC2020</option>
+                    <option value="BAJAJFINSV 26NOV2020" data-qty=125 data-exch=2>BAJAJFINSV 26NOV2020</option>
+                    <option value="BAJAJFINSV 31DEC2020" data-qty=125 data-exch=2>BAJAJFINSV 31DEC2020</option>
+                    <option value="BAJFINANCE 26NOV2020" data-qty=250 data-exch=2>BAJFINANCE 26NOV2020</option>
+                    <option value="BAJFINANCE 31DEC2020" data-qty=250 data-exch=2>BAJFINANCE 31DEC2020</option>
+                    <option value="BALKRISIND 26NOV2020" data-qty=400 data-exch=2>BALKRISIND 26NOV2020</option>
+                    <option value="BALKRISIND 31DEC2020" data-qty=800 data-exch=2>BALKRISIND 31DEC2020</option>
+                    <option value="BANDHANBNK 26NOV2020" data-qty=1800 data-exch=2>BANDHANBNK 26NOV2020</option>
+                    <option value="BANDHANBNK 31DEC2020" data-qty=1800 data-exch=2>BANDHANBNK 31DEC2020</option>
+                    <option value="BANKBARODA 26NOV2020" data-qty=8200 data-exch=2>BANKBARODA 26NOV2020</option>
+                    <option value="BANKBARODA 31DEC2020" data-qty=8200 data-exch=2>BANKBARODA 31DEC2020</option>
+                    <option value="BANKNIFTY 26NOV2020" data-qty=25 data-exch=2>BANKNIFTY 26NOV2020</option>
+                    <option value="BANKNIFTY 31DEC2020" data-qty=25 data-exch=2>BANKNIFTY 31DEC2020</option>
+                    <option value="BATAINDIA 26NOV2020" data-qty=550 data-exch=2>BATAINDIA 26NOV2020</option>
+                    <option value="BATAINDIA 31DEC2020" data-qty=550 data-exch=2>BATAINDIA 31DEC2020</option>
+                    <option value="BEL 26NOV2020" data-qty=7600 data-exch=2>BEL 26NOV2020</option>
+                    <option value="BEL 31DEC2020" data-qty=7600 data-exch=2>BEL 31DEC2020</option>
+                    <option value="BERGEPAINT 26NOV2020" data-qty=1100 data-exch=2>BERGEPAINT 26NOV2020</option>
+                    <option value="BERGEPAINT 31DEC2020" data-qty=1100 data-exch=2>BERGEPAINT 31DEC2020</option>
+                    <option value="BHARATFORG 26NOV2020" data-qty=1500 data-exch=2>BHARATFORG 26NOV2020</option>
+                    <option value="BHARATFORG 31DEC2020" data-qty=1500 data-exch=2>BHARATFORG 31DEC2020</option>
+                    <option value="BHARTIARTL 26NOV2020" data-qty=1851 data-exch=2>BHARTIARTL 26NOV2020</option>
+                    <option value="BHARTIARTL 31DEC2020" data-qty=1851 data-exch=2>BHARTIARTL 31DEC2020</option>
+                    <option value="BHEL 26NOV2020" data-qty=21000 data-exch=2>BHEL 26NOV2020</option>
+                    <option value="BHEL 31DEC2020" data-qty=21000 data-exch=2>BHEL 31DEC2020</option>
+                    <option value="BIOCON 26NOV2020" data-qty=2300 data-exch=2>BIOCON 26NOV2020</option>
+                    <option value="BIOCON 31DEC2020" data-qty=2300 data-exch=2>BIOCON 31DEC2020</option>
+                    <option value="BOSCHLTD 26NOV2020" data-qty=50 data-exch=2>BOSCHLTD 26NOV2020</option>
+                    <option value="BOSCHLTD 31DEC2020" data-qty=50 data-exch=2>BOSCHLTD 31DEC2020</option>
+                    <option value="BPCL 26NOV2020" data-qty=1800 data-exch=2>BPCL 26NOV2020</option>
+                    <option value="BPCL 31DEC2020" data-qty=1800 data-exch=2>BPCL 31DEC2020</option>
+                    <option value="BRITANNIA 26NOV2020" data-qty=200 data-exch=2>BRITANNIA 26NOV2020</option>
+                    <option value="BRITANNIA 31DEC2020" data-qty=200 data-exch=2>BRITANNIA 31DEC2020</option>
+                    <option value="CADILAHC 26NOV2020" data-qty=2200 data-exch=2>CADILAHC 26NOV2020</option>
+                    <option value="CADILAHC 31DEC2020" data-qty=2200 data-exch=2>CADILAHC 31DEC2020</option>
+                    <option value="CANBK 26NOV2020" data-qty=5000 data-exch=2>CANBK 26NOV2020</option>
+                    <option value="CANBK 31DEC2020" data-qty=5000 data-exch=2>CANBK 31DEC2020</option>
+                    <option value="CARDAMOM 13NOV2020" data-qty=100 data-exch=1>CARDAMOM 13NOV2020</option>
+                    <option value="CARDAMOM 15DEC2020" data-qty=100 data-exch=1>CARDAMOM 15DEC2020</option>
+                    <option value="CHOLAFIN 26NOV2020" data-qty=2500 data-exch=2>CHOLAFIN 26NOV2020</option>
+                    <option value="CHOLAFIN 31DEC2020" data-qty=2500 data-exch=2>CHOLAFIN 31DEC2020</option>
+                    <option value="CIPLA 26NOV2020" data-qty=1300 data-exch=2>CIPLA 26NOV2020</option>
+                    <option value="CIPLA 31DEC2020" data-qty=1300 data-exch=2>CIPLA 31DEC2020</option>
+                    <option value="COALINDIA 26NOV2020" data-qty=3700 data-exch=2>COALINDIA 26NOV2020</option>
+                    <option value="COALINDIA 31DEC2020" data-qty=3700 data-exch=2>COALINDIA 31DEC2020</option>
+                    <option value="COCUDAKL 20JAN2021" data-qty=100 data-exch=3>COCUDAKL 20JAN2021</option>
+                    <option value="COFORGE 26NOV2020" data-qty=375 data-exch=2>COFORGE 26NOV2020</option>
+                    <option value="COFORGE 31DEC2020" data-qty=375 data-exch=2>COFORGE 31DEC2020</option>
+                    <option value="COLPAL 26NOV2020" data-qty=700 data-exch=2>COLPAL 26NOV2020</option>
+                    <option value="COLPAL 31DEC2020" data-qty=700 data-exch=2>COLPAL 31DEC2020</option>
+                    <option value="CONCOR 26NOV2020" data-qty=1563 data-exch=2>CONCOR 26NOV2020</option>
+                    <option value="CONCOR 31DEC2020" data-qty=1563 data-exch=2>CONCOR 31DEC2020</option>
+                    <option value="COPPER 27NOV2020" data-qty=2500 data-exch=1>COPPER 27NOV2020</option>
+                    <option value="COPPER 31DEC2020" data-qty=2500 data-exch=1>COPPER 31DEC2020</option>
+                    <option value="COTTON 27NOV2020" data-qty=25 data-exch=1>COTTON 27NOV2020</option>
+                    <option value="COTTON 31DEC2020" data-qty=25 data-exch=1>COTTON 31DEC2020</option>
+                    <option value="CPO 27NOV2020" data-qty=1000 data-exch=1>CPO 27NOV2020</option>
+                    <option value="CPO 31DEC2020" data-qty=1000 data-exch=1>CPO 31DEC2020</option>
+                    <option value="CRUDEOIL 18DEC2020" data-qty=100 data-exch=1>CRUDEOIL 18DEC2020</option>
+                    <option value="CRUDEOIL 19NOV2020" data-qty=100 data-exch=1>CRUDEOIL 19NOV2020</option>
+                    <option value="CUMMINSIND 26NOV2020" data-qty=1200 data-exch=2>CUMMINSIND 26NOV2020</option>
+                    <option value="CUMMINSIND 31DEC2020" data-qty=1200 data-exch=2>CUMMINSIND 31DEC2020</option>
+                    <option value="DABUR 26NOV2020" data-qty=1250 data-exch=2>DABUR 26NOV2020</option>
+                    <option value="DABUR 31DEC2020" data-qty=1250 data-exch=2>DABUR 31DEC2020</option>
+                    <option value="DIVISLAB 26NOV2020" data-qty=200 data-exch=2>DIVISLAB 26NOV2020</option>
+                    <option value="DIVISLAB 31DEC2020" data-qty=400 data-exch=2>DIVISLAB 31DEC2020</option>
+                    <option value="DLF 26NOV2020" data-qty=3300 data-exch=2>DLF 26NOV2020</option>
+                    <option value="DLF 31DEC2020" data-qty=3300 data-exch=2>DLF 31DEC2020</option>
+                    <option value="DRREDDY 26NOV2020" data-qty=125 data-exch=2>DRREDDY 26NOV2020</option>
+                    <option value="DRREDDY 31DEC2020" data-qty=250 data-exch=2>DRREDDY 31DEC2020</option>
+                    <option value="EICHERMOT 26NOV2020" data-qty=350 data-exch=2>EICHERMOT 26NOV2020</option>
+                    <option value="EICHERMOT 31DEC2020" data-qty=350 data-exch=2>EICHERMOT 31DEC2020</option>
+                    <option value="ESCORTS 26NOV2020" data-qty=550 data-exch=2>ESCORTS 26NOV2020</option>
+                    <option value="ESCORTS 31DEC2020" data-qty=1100 data-exch=2>ESCORTS 31DEC2020</option>
+                    <option value="EXIDEIND 26NOV2020" data-qty=3600 data-exch=2>EXIDEIND 26NOV2020</option>
+                    <option value="EXIDEIND 31DEC2020" data-qty=3600 data-exch=2>EXIDEIND 31DEC2020</option>
+                    <option value="FEDERALBNK 26NOV2020" data-qty=8500 data-exch=2>FEDERALBNK 26NOV2020</option>
+                    <option value="FEDERALBNK 31DEC2020" data-qty=8500 data-exch=2>FEDERALBNK 31DEC2020</option>
+                    <option value="GAIL 26NOV2020" data-qty=6100 data-exch=2>GAIL 26NOV2020</option>
+                    <option value="GAIL 31DEC2020" data-qty=6100 data-exch=2>GAIL 31DEC2020</option>
+                    <option value="GLENMARK 26NOV2020" data-qty=1150 data-exch=2>GLENMARK 26NOV2020</option>
+                    <option value="GLENMARK 31DEC2020" data-qty=2300 data-exch=2>GLENMARK 31DEC2020</option>
+                    <option value="GMRINFRA 26NOV2020" data-qty=22500 data-exch=2>GMRINFRA 26NOV2020</option>
+                    <option value="GMRINFRA 31DEC2020" data-qty=45000 data-exch=2>GMRINFRA 31DEC2020</option>
+                    <option value="GODREJCP 26NOV2020" data-qty=1000 data-exch=2>GODREJCP 26NOV2020</option>
+                    <option value="GODREJCP 31DEC2020" data-qty=1000 data-exch=2>GODREJCP 31DEC2020</option>
+                    <option value="GODREJPROP 26NOV2020" data-qty=650 data-exch=2>GODREJPROP 26NOV2020</option>
+                    <option value="GODREJPROP 31DEC2020" data-qty=650 data-exch=2>GODREJPROP 31DEC2020</option>
+                    <option value="GOLD 04DEC2020" data-qty=100 data-exch=1>GOLD 04DEC2020</option>
+                    <option value="GOLD 05FEB2021" data-qty=100 data-exch=1>GOLD 05FEB2021</option>
+                    <option value="GOLDGUINEA 27NOV2020" data-qty=1 data-exch=1>GOLDGUINEA 27NOV2020</option>
+                    <option value="GOLDGUINEA 31DEC2020" data-qty=1 data-exch=1>GOLDGUINEA 31DEC2020</option>
+                    <option value="GOLDM 04DEC2020" data-qty=10 data-exch=1>GOLDM 04DEC2020</option>
+                    <option value="GOLDM 05NOV2020" data-qty=10 data-exch=1>GOLDM 05NOV2020</option>
+                    <option value="GOLDMM 04DEC2020" data-qty=10 data-exch=1>GOLDMM 04DEC2020</option>
+                    <option value="GOLDMM 05FEB2021" data-qty=10 data-exch=1>GOLDMM 05FEB2021</option>
+                    <option value="GOLDPETAL 27NOV2020" data-qty=1 data-exch=1>GOLDPETAL 27NOV2020</option>
+                    <option value="GOLDPETAL 31DEC2020" data-qty=1 data-exch=1>GOLDPETAL 31DEC2020</option>
+                    <option value="GRASIM 26NOV2020" data-qty=950 data-exch=2>GRASIM 26NOV2020</option>
+                    <option value="GRASIM 31DEC2020" data-qty=950 data-exch=2>GRASIM 31DEC2020</option>
+                    <option value="HAVELLS 26NOV2020" data-qty=1000 data-exch=2>HAVELLS 26NOV2020</option>
+                    <option value="HAVELLS 31DEC2020" data-qty=1000 data-exch=2>HAVELLS 31DEC2020</option>
+                    <option value="HCLTECH 26NOV2020" data-qty=700 data-exch=2>HCLTECH 26NOV2020</option>
+                    <option value="HCLTECH 31DEC2020" data-qty=1400 data-exch=2>HCLTECH 31DEC2020</option>
+                    <option value="HDFC 26NOV2020" data-qty=300 data-exch=2>HDFC 26NOV2020</option>
+                    <option value="HDFC 31DEC2020" data-qty=300 data-exch=2>HDFC 31DEC2020</option>
+                    <option value="HDFCBANK 26NOV2020" data-qty=550 data-exch=2>HDFCBANK 26NOV2020</option>
+                    <option value="HDFCBANK 31DEC2020" data-qty=550 data-exch=2>HDFCBANK 31DEC2020</option>
+                    <option value="HDFCLIFE 26NOV2020" data-qty=1100 data-exch=2>HDFCLIFE 26NOV2020</option>
+                    <option value="HDFCLIFE 31DEC2020" data-qty=1100 data-exch=2>HDFCLIFE 31DEC2020</option>
+                    <option value="HEROMOTOCO 26NOV2020" data-qty=300 data-exch=2>HEROMOTOCO 26NOV2020</option>
+                    <option value="HEROMOTOCO 31DEC2020" data-qty=300 data-exch=2>HEROMOTOCO 31DEC2020</option>
+                    <option value="HINDALCO 26NOV2020" data-qty=4300 data-exch=2>HINDALCO 26NOV2020</option>
+                    <option value="HINDALCO 31DEC2020" data-qty=4300 data-exch=2>HINDALCO 31DEC2020</option>
+                    <option value="HINDPETRO 26NOV2020" data-qty=2700 data-exch=2>HINDPETRO 26NOV2020</option>
+                    <option value="HINDPETRO 31DEC2020" data-qty=2700 data-exch=2>HINDPETRO 31DEC2020</option>
+                    <option value="HINDUNILVR 26NOV2020" data-qty=300 data-exch=2>HINDUNILVR 26NOV2020</option>
+                    <option value="HINDUNILVR 31DEC2020" data-qty=300 data-exch=2>HINDUNILVR 31DEC2020</option>
+                    <option value="IBULHSGFIN 26NOV2020" data-qty=3100 data-exch=2>IBULHSGFIN 26NOV2020</option>
+                    <option value="IBULHSGFIN 31DEC2020" data-qty=3100 data-exch=2>IBULHSGFIN 31DEC2020</option>
+                    <option value="ICICIBANK 26NOV2020" data-qty=1375 data-exch=2>ICICIBANK 26NOV2020</option>
+                    <option value="ICICIBANK 31DEC2020" data-qty=1375 data-exch=2>ICICIBANK 31DEC2020</option>
+                    <option value="ICICIGI 26NOV2020" data-qty=425 data-exch=2>ICICIGI 26NOV2020</option>
+                    <option value="ICICIGI 31DEC2020" data-qty=425 data-exch=2>ICICIGI 31DEC2020</option>
+                    <option value="ICICIPRULI 26NOV2020" data-qty=1500 data-exch=2>ICICIPRULI 26NOV2020</option>
+                    <option value="ICICIPRULI 31DEC2020" data-qty=1500 data-exch=2>ICICIPRULI 31DEC2020</option>
+                    <option value="IDEA 26NOV2020" data-qty=70000 data-exch=2>IDEA 26NOV2020</option>
+                    <option value="IDEA 31DEC2020" data-qty=140000 data-exch=2>IDEA 31DEC2020</option>
+                    <option value="IDFCFIRSTB 26NOV2020" data-qty=19000 data-exch=2>IDFCFIRSTB 26NOV2020</option>
+                    <option value="IDFCFIRSTB 31DEC2020" data-qty=19000 data-exch=2>IDFCFIRSTB 31DEC2020</option>
+                    <option value="IGL 26NOV2020" data-qty=1375 data-exch=2>IGL 26NOV2020</option>
+                    <option value="IGL 31DEC2020" data-qty=1375 data-exch=2>IGL 31DEC2020</option>
+                    <option value="INDIGO 26NOV2020" data-qty=500 data-exch=2>INDIGO 26NOV2020</option>
+                    <option value="INDIGO 31DEC2020" data-qty=500 data-exch=2>INDIGO 31DEC2020</option>
+                    <option value="INDUSINDBK 26NOV2020" data-qty=800 data-exch=2>INDUSINDBK 26NOV2020</option>
+                    <option value="INDUSINDBK 31DEC2020" data-qty=800 data-exch=2>INDUSINDBK 31DEC2020</option>
+                    <option value="INFRATEL 26NOV2020" data-qty=2800 data-exch=2>INFRATEL 26NOV2020</option>
+                    <option value="INFRATEL 31DEC2020" data-qty=2800 data-exch=2>INFRATEL 31DEC2020</option>
+                    <option value="INFY 26NOV2020" data-qty=600 data-exch=2>INFY 26NOV2020</option>
+                    <option value="INFY 31DEC2020" data-qty=1200 data-exch=2>INFY 31DEC2020</option>
+                    <option value="IOC 26NOV2020" data-qty=5700 data-exch=2>IOC 26NOV2020</option>
+                    <option value="IOC 31DEC2020" data-qty=5700 data-exch=2>IOC 31DEC2020</option>
+                    <option value="ITC 26NOV2020" data-qty=3200 data-exch=2>ITC 26NOV2020</option>
+                    <option value="ITC 31DEC2020" data-qty=3200 data-exch=2>ITC 31DEC2020</option>
+                    <option value="JINDALSTEL 26NOV2020" data-qty=5000 data-exch=2>JINDALSTEL 26NOV2020</option>
+                    <option value="JINDALSTEL 31DEC2020" data-qty=5000 data-exch=2>JINDALSTEL 31DEC2020</option>
+                    <option value="JSWSTEEL 26NOV2020" data-qty=2700 data-exch=2>JSWSTEEL 26NOV2020</option>
+                    <option value="JSWSTEEL 31DEC2020" data-qty=2700 data-exch=2>JSWSTEEL 31DEC2020</option>
+                    <option value="JUBLFOOD 26NOV2020" data-qty=250 data-exch=2>JUBLFOOD 26NOV2020</option>
+                    <option value="JUBLFOOD 31DEC2020" data-qty=500 data-exch=2>JUBLFOOD 31DEC2020</option>
+                    <option value="KOTAKBANK 26NOV2020" data-qty=400 data-exch=2>KOTAKBANK 26NOV2020</option>
+                    <option value="KOTAKBANK 31DEC2020" data-qty=400 data-exch=2>KOTAKBANK 31DEC2020</option>
+                    <option value="L&TFH 26NOV2020" data-qty=6800 data-exch=2>L&TFH 26NOV2020</option>
+                    <option value="L&TFH 31DEC2020" data-qty=6800 data-exch=2>L&TFH 31DEC2020</option>
+                    <option value="LEAD 27NOV2020" data-qty=5000 data-exch=1>LEAD 27NOV2020</option>
+                    <option value="LEAD 31DEC2020" data-qty=5000 data-exch=1>LEAD 31DEC2020</option>
+                    <option value="LICHSGFIN 26NOV2020" data-qty=2000 data-exch=2>LICHSGFIN 26NOV2020</option>
+                    <option value="LICHSGFIN 31DEC2020" data-qty=2000 data-exch=2>LICHSGFIN 31DEC2020</option>
+                    <option value="LT 26NOV2020" data-qty=550 data-exch=2>LT 26NOV2020</option>
+                    <option value="LT 31DEC2020" data-qty=550 data-exch=2>LT 31DEC2020</option>
+                    <option value="LUPIN 26NOV2020" data-qty=850 data-exch=2>LUPIN 26NOV2020</option>
+                    <option value="LUPIN 31DEC2020" data-qty=850 data-exch=2>LUPIN 31DEC2020</option>
+                    <option value="M&M 26NOV2020" data-qty=1400 data-exch=2>M&M 26NOV2020</option>
+                    <option value="M&M 31DEC2020" data-qty=1400 data-exch=2>M&M 31DEC2020</option>
+                    <option value="M&MFIN 26NOV2020" data-qty=3444 data-exch=2>M&MFIN 26NOV2020</option>
+                    <option value="M&MFIN 31DEC2020" data-qty=3444 data-exch=2>M&MFIN 31DEC2020</option>
+                    <option value="MANAPPURAM 26NOV2020" data-qty=6000 data-exch=2>MANAPPURAM 26NOV2020</option>
+                    <option value="MANAPPURAM 31DEC2020" data-qty=6000 data-exch=2>MANAPPURAM 31DEC2020</option>
+                    <option value="MARICO 26NOV2020" data-qty=2000 data-exch=2>MARICO 26NOV2020</option>
+                    <option value="MARICO 31DEC2020" data-qty=2000 data-exch=2>MARICO 31DEC2020</option>
+                    <option value="MARUTI 26NOV2020" data-qty=100 data-exch=2>MARUTI 26NOV2020</option>
+                    <option value="MARUTI 31DEC2020" data-qty=100 data-exch=2>MARUTI 31DEC2020</option>
+                    <option value="MCDOWELL-N 26NOV2020" data-qty=1250 data-exch=2>MCDOWELL-N 26NOV2020</option>
+                    <option value="MCDOWELL-N 31DEC2020" data-qty=1250 data-exch=2>MCDOWELL-N 31DEC2020</option>
+                    <option value="MENTHAOIL 27NOV2020" data-qty=1080 data-exch=1>MENTHAOIL 27NOV2020</option>
+                    <option value="MENTHAOIL 31DEC2020" data-qty=1080 data-exch=1>MENTHAOIL 31DEC2020</option>
+                    <option value="MFSL 26NOV2020" data-qty=1300 data-exch=2>MFSL 26NOV2020</option>
+                    <option value="MFSL 31DEC2020" data-qty=1300 data-exch=2>MFSL 31DEC2020</option>
+                    <option value="MGL 26NOV2020" data-qty=600 data-exch=2>MGL 26NOV2020</option>
+                    <option value="MGL 31DEC2020" data-qty=600 data-exch=2>MGL 31DEC2020</option>
+                    <option value="MINDTREE 26NOV2020" data-qty=800 data-exch=2>MINDTREE 26NOV2020</option>
+                    <option value="MINDTREE 31DEC2020" data-qty=800 data-exch=2>MINDTREE 31DEC2020</option>
+                    <option value="MOTHERSUMI 26NOV2020" data-qty=7000 data-exch=2>MOTHERSUMI 26NOV2020</option>
+                    <option value="MOTHERSUMI 31DEC2020" data-qty=7000 data-exch=2>MOTHERSUMI 31DEC2020</option>
+                    <option value="MRF 26NOV2020" data-qty=10 data-exch=2>MRF 26NOV2020</option>
+                    <option value="MRF 31DEC2020" data-qty=10 data-exch=2>MRF 31DEC2020</option>
+                    <option value="MUTHOOTFIN 26NOV2020" data-qty=750 data-exch=2>MUTHOOTFIN 26NOV2020</option>
+                    <option value="MUTHOOTFIN 31DEC2020" data-qty=750 data-exch=2>MUTHOOTFIN 31DEC2020</option>
+                    <option value="NATIONALUM 26NOV2020" data-qty=17000 data-exch=2>NATIONALUM 26NOV2020</option>
+                    <option value="NATIONALUM 31DEC2020" data-qty=17000 data-exch=2>NATIONALUM 31DEC2020</option>
+                    <option value="NATURALGAS 24NOV2020" data-qty=1250 data-exch=1>NATURALGAS 24NOV2020</option>
+                    <option value="NATURALGAS 28DEC2020" data-qty=1250 data-exch=1>NATURALGAS 28DEC2020</option>
+                    <option value="NAUKRI 26NOV2020" data-qty=250 data-exch=2>NAUKRI 26NOV2020</option>
+                    <option value="NAUKRI 31DEC2020" data-qty=250 data-exch=2>NAUKRI 31DEC2020</option>
+                    <option value="NESTLEIND 26NOV2020" data-qty=50 data-exch=2>NESTLEIND 26NOV2020</option>
+                    <option value="NESTLEIND 31DEC2020" data-qty=50 data-exch=2>NESTLEIND 31DEC2020</option>
+                    <option value="NICKEL 27NOV2020" data-qty=1500 data-exch=1>NICKEL 27NOV2020</option>
+                    <option value="NICKEL 31DEC2020" data-qty=1500 data-exch=1>NICKEL 31DEC2020</option>
+                    <option value="NIFTY 26NOV2020" data-qty=75 data-exch=2>NIFTY 26NOV2020</option>
+                    <option value="NIFTY 31DEC2020" data-qty=75 data-exch=2>NIFTY 31DEC2020</option>
+                    <option value="NMDC 26NOV2020" data-qty=6700 data-exch=2>NMDC 26NOV2020</option>
+                    <option value="NMDC 31DEC2020" data-qty=6700 data-exch=2>NMDC 31DEC2020</option>
+                    <option value="NTPC 26NOV2020" data-qty=5700 data-exch=2>NTPC 26NOV2020</option>
+                    <option value="NTPC 31DEC2020" data-qty=5700 data-exch=2>NTPC 31DEC2020</option>
+                    <option value="ONGC 26NOV2020" data-qty=7700 data-exch=2>ONGC 26NOV2020</option>
+                    <option value="ONGC 31DEC2020" data-qty=7700 data-exch=2>ONGC 31DEC2020</option>
+                    <option value="PAGEIND 26NOV2020" data-qty=30 data-exch=2>PAGEIND 26NOV2020</option>
+                    <option value="PAGEIND 31DEC2020" data-qty=30 data-exch=2>PAGEIND 31DEC2020</option>
+                    <option value="PEL 26NOV2020" data-qty=550 data-exch=2>PEL 26NOV2020</option>
+                    <option value="PEL 31DEC2020" data-qty=550 data-exch=2>PEL 31DEC2020</option>
+                    <option value="PETRONET 26NOV2020" data-qty=3000 data-exch=2>PETRONET 26NOV2020</option>
+                    <option value="PETRONET 31DEC2020" data-qty=3000 data-exch=2>PETRONET 31DEC2020</option>
+                    <option value="PFC 26NOV2020" data-qty=6200 data-exch=2>PFC 26NOV2020</option>
+                    <option value="PFC 31DEC2020" data-qty=6200 data-exch=2>PFC 31DEC2020</option>
+                    <option value="PIDILITIND 26NOV2020" data-qty=500 data-exch=2>PIDILITIND 26NOV2020</option>
+                    <option value="PIDILITIND 31DEC2020" data-qty=500 data-exch=2>PIDILITIND 31DEC2020</option>
+                    <option value="PNB 26NOV2020" data-qty=14000 data-exch=2>PNB 26NOV2020</option>
+                    <option value="PNB 31DEC2020" data-qty=14000 data-exch=2>PNB 31DEC2020</option>
+                    <option value="POWERGRID 26NOV2020" data-qty=4000 data-exch=2>POWERGRID 26NOV2020</option>
+                    <option value="POWERGRID 31DEC2020" data-qty=4000 data-exch=2>POWERGRID 31DEC2020</option>
+                    <option value="PVR 26NOV2020" data-qty=407 data-exch=2>PVR 26NOV2020</option>
+                    <option value="PVR 31DEC2020" data-qty=407 data-exch=2>PVR 31DEC2020</option>
+                    <option value="RAMCOCEM 26NOV2020" data-qty=850 data-exch=2>RAMCOCEM 26NOV2020</option>
+                    <option value="RAMCOCEM 31DEC2020" data-qty=850 data-exch=2>RAMCOCEM 31DEC2020</option>
+                    <option value="RBLBANK 26NOV2020" data-qty=2600 data-exch=2>RBLBANK 26NOV2020</option>
+                    <option value="RBLBANK 31DEC2020" data-qty=2600 data-exch=2>RBLBANK 31DEC2020</option>
+                    <option value="RECLTD 26NOV2020" data-qty=6000 data-exch=2>RECLTD 26NOV2020</option>
+                    <option value="RECLTD 31DEC2020" data-qty=6000 data-exch=2>RECLTD 31DEC2020</option>
+                    <option value="RELIANCE 26NOV2020" data-qty=505 data-exch=2>RELIANCE 26NOV2020</option>
+                    <option value="RELIANCE 31DEC2020" data-qty=505 data-exch=2>RELIANCE 31DEC2020</option>
+                    <option value="SAIL 26NOV2020" data-qty=19000 data-exch=2>SAIL 26NOV2020</option>
+                    <option value="SAIL 31DEC2020" data-qty=19000 data-exch=2>SAIL 31DEC2020</option>
+                    <option value="SBILIFE 26NOV2020" data-qty=750 data-exch=2>SBILIFE 26NOV2020</option>
+                    <option value="SBILIFE 31DEC2020" data-qty=750 data-exch=2>SBILIFE 31DEC2020</option>
+                    <option value="SBIN 26NOV2020" data-qty=3000 data-exch=2>SBIN 26NOV2020</option>
+                    <option value="SBIN 31DEC2020" data-qty=3000 data-exch=2>SBIN 31DEC2020</option>
+                    <option value="SHREECEM 26NOV2020" data-qty=50 data-exch=2>SHREECEM 26NOV2020</option>
+                    <option value="SHREECEM 31DEC2020" data-qty=50 data-exch=2>SHREECEM 31DEC2020</option>
+                    <option value="SIEMENS 26NOV2020" data-qty=550 data-exch=2>SIEMENS 26NOV2020</option>
+                    <option value="SIEMENS 31DEC2020" data-qty=550 data-exch=2>SIEMENS 31DEC2020</option>
+                    <option value="SILVER 04DEC2020" data-qty=30 data-exch=1>SILVER 04DEC2020</option>
+                    <option value="SILVER 05MAR2021" data-qty=30 data-exch=1>SILVER 05MAR2021</option>
+                    <option value="SILVERM 26FEB2021" data-qty=5 data-exch=1>SILVERM 26FEB2021</option>
+                    <option value="SILVERM 30NOV2020" data-qty=5 data-exch=1>SILVERM 30NOV2020</option>
+                    <option value="SILVERMIC 26FEB2021" data-qty=1 data-exch=1>SILVERMIC 26FEB2021</option>
+                    <option value="SILVERMIC 30NOV2020" data-qty=1 data-exch=1>SILVERMIC 30NOV2020</option>
+                    <option value="SILVERMM 04DEC2020" data-qty=5 data-exch=1>SILVERMM 04DEC2020</option>
+                    <option value="SILVERMM 05MAR2021" data-qty=5 data-exch=1>SILVERMM 05MAR2021</option>
+                    <option value="SRF 26NOV2020" data-qty=125 data-exch=2>SRF 26NOV2020</option>
+                    <option value="SRF 31DEC2020" data-qty=250 data-exch=2>SRF 31DEC2020</option>
+                    <option value="SRTRANSFIN 26NOV2020" data-qty=667 data-exch=2>SRTRANSFIN 26NOV2020</option>
+                    <option value="SRTRANSFIN 31DEC2020" data-qty=667 data-exch=2>SRTRANSFIN 31DEC2020</option>
+                    <option value="SUNPHARMA 26NOV2020" data-qty=1400 data-exch=2>SUNPHARMA 26NOV2020</option>
+                    <option value="SUNPHARMA 31DEC2020" data-qty=1400 data-exch=2>SUNPHARMA 31DEC2020</option>
+                    <option value="SUNTV 26NOV2020" data-qty=1500 data-exch=2>SUNTV 26NOV2020</option>
+                    <option value="SUNTV 31DEC2020" data-qty=1500 data-exch=2>SUNTV 31DEC2020</option>
+                    <option value="TATACHEM 26NOV2020" data-qty=2000 data-exch=2>TATACHEM 26NOV2020</option>
+                    <option value="TATACHEM 31DEC2020" data-qty=2000 data-exch=2>TATACHEM 31DEC2020</option>
+                    <option value="TATACONSUM 26NOV2020" data-qty=1350 data-exch=2>TATACONSUM 26NOV2020</option>
+                    <option value="TATACONSUM 31DEC2020" data-qty=2700 data-exch=2>TATACONSUM 31DEC2020</option>
+                    <option value="TATAMOTORS 26NOV2020" data-qty=5700 data-exch=2>TATAMOTORS 26NOV2020</option>
+                    <option value="TATAMOTORS 31DEC2020" data-qty=5700 data-exch=2>TATAMOTORS 31DEC2020</option>
+                    <option value="TATAPOWER 26NOV2020" data-qty=13500 data-exch=2>TATAPOWER 26NOV2020</option>
+                    <option value="TATAPOWER 31DEC2020" data-qty=13500 data-exch=2>TATAPOWER 31DEC2020</option>
+                    <option value="TATASTEEL 26NOV2020" data-qty=1700 data-exch=2>TATASTEEL 26NOV2020</option>
+                    <option value="TATASTEEL 31DEC2020" data-qty=1700 data-exch=2>TATASTEEL 31DEC2020</option>
+                    <option value="TCS 26NOV2020" data-qty=300 data-exch=2>TCS 26NOV2020</option>
+                    <option value="TCS 31DEC2020" data-qty=300 data-exch=2>TCS 31DEC2020</option>
+                    <option value="TECHM 26NOV2020" data-qty=1200 data-exch=2>TECHM 26NOV2020</option>
+                    <option value="TECHM 31DEC2020" data-qty=1200 data-exch=2>TECHM 31DEC2020</option>
+                    <option value="TITAN 26NOV2020" data-qty=750 data-exch=2>TITAN 26NOV2020</option>
+                    <option value="TITAN 31DEC2020" data-qty=750 data-exch=2>TITAN 31DEC2020</option>
+                    <option value="TORNTPHARM 26NOV2020" data-qty=250 data-exch=2>TORNTPHARM 26NOV2020</option>
+                    <option value="TORNTPHARM 31DEC2020" data-qty=500 data-exch=2>TORNTPHARM 31DEC2020</option>
+                    <option value="TORNTPOWER 26NOV2020" data-qty=3000 data-exch=2>TORNTPOWER 26NOV2020</option>
+                    <option value="TORNTPOWER 31DEC2020" data-qty=3000 data-exch=2>TORNTPOWER 31DEC2020</option>
+                    <option value="TVSMOTOR 26NOV2020" data-qty=1400 data-exch=2>TVSMOTOR 26NOV2020</option>
+                    <option value="TVSMOTOR 31DEC2020" data-qty=1400 data-exch=2>TVSMOTOR 31DEC2020</option>
+                    <option value="UBL 26NOV2020" data-qty=700 data-exch=2>UBL 26NOV2020</option>
+                    <option value="UBL 31DEC2020" data-qty=700 data-exch=2>UBL 31DEC2020</option>
+                    <option value="ULTRACEMCO 26NOV2020" data-qty=200 data-exch=2>ULTRACEMCO 26NOV2020</option>
+                    <option value="ULTRACEMCO 31DEC2020" data-qty=200 data-exch=2>ULTRACEMCO 31DEC2020</option>
+                    <option value="UPL 26NOV2020" data-qty=1300 data-exch=2>UPL 26NOV2020</option>
+                    <option value="UPL 31DEC2020" data-qty=1300 data-exch=2>UPL 31DEC2020</option>
+                    <option value="VEDL 26NOV2020" data-qty=6200 data-exch=2>VEDL 26NOV2020</option>
+                    <option value="VEDL 31DEC2020" data-qty=6200 data-exch=2>VEDL 31DEC2020</option>
+                    <option value="VOLTAS 26NOV2020" data-qty=1000 data-exch=2>VOLTAS 26NOV2020</option>
+                    <option value="VOLTAS 31DEC2020" data-qty=1000 data-exch=2>VOLTAS 31DEC2020</option>
+                    <option value="WIPRO 26NOV2020" data-qty=3200 data-exch=2>WIPRO 26NOV2020</option>
+                    <option value="WIPRO 31DEC2020" data-qty=3200 data-exch=2>WIPRO 31DEC2020</option>
+                    <option value="ZEEL 26NOV2020" data-qty=3000 data-exch=2>ZEEL 26NOV2020</option>
+                    <option value="ZEEL 31DEC2020" data-qty=3000 data-exch=2>ZEEL 31DEC2020</option>
+                    <option value="ZINC 27NOV2020" data-qty=5000 data-exch=1>ZINC 27NOV2020</option>
+                    <option value="ZINC 31DEC2020" data-qty=5000 data-exch=1>ZINC 31DEC2020</option>
+                  </select>
+               
+              </div>
+              <br>
+             <center><input type="button"  class="myButton" name="SubmitButton" value="Generate Query" onClick="finalexe(this.form)"></center>
+              <br>
+           <textarea id="qry" style="width: 1px; height: 1px;" >
+               
+           </textarea>
+        </form>
+                             </div>
+    </body>
+</html>
