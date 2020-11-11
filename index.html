@@ -49,18 +49,23 @@ input[type=number] {
 $(document).ready(function(){
     $("#symblist").change(function () {
      $("#symb").val($(this).find(':selected').val());//($(this).find(':selected').data('picone'));
-     $("#qtytm").val($(this).find(':selected').data('qty'));
-     $("#qtytm").trigger("change");
+     
      if($(this).find(':selected').data('exch')==2)
      {
        //$('input[id=mcnse][value=2]').attr('checked', true); 
        $("input[name=mcnse][value=" + 2 + "]").prop('checked', true);
        $("input[name=mcnse][value=" + 2 + "]").trigger("change");
+       $("#qtytm").val($(this).find(':selected').data('qty'));
+       $("label[for = unit]").text('');
+       $("#qtytm").trigger("change");
      }
      if($(this).find(':selected').data('exch')==1)
      {
         $("input[name=mcnse][value=" + 1 + "]").prop('checked', true);
         $("input[name=mcnse][value=" + 1 + "]").trigger("change");
+	    $("#qtytm").val(1);
+        $("label[for = unit]").text('('+$(this).find(':selected').data('qty')+')');
+        $("#qtytm").trigger("change");
        // $('input[id=mcnse][value=1]').attr('checked', true);
      }
     
@@ -217,7 +222,7 @@ function finalexe(form)
               <br>
               <div>
                 <label for="qtytm" class="lbl"> Qty     :</label>
-                <input type="number"  size="5" class="lbl" id="qtytm" onchange="calcq()"/> <br>
+                <input type="number"  size="5" class="lbl" id="qtytm" onchange="calcq()"/> <label for="unit" id="#ogqty"></label> <br>
                 <label for="qtytmp" class="lbl"> Lot :</label>
                  <input type="number"  size="3" class="lbl" id="qtytmp" max="3" value="1" onchange="calcq()"/> = 
                 <input type="number"  size="7" class="lbl" id="qty" disabled/>
