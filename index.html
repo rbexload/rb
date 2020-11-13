@@ -96,6 +96,18 @@ $(document).ready(function(){
             document.getElementById('ordnolbl').value=ord;
 
 }
+function finalcalc(form)
+{
+   
+    var bprice = document.getElementById('buyc').value;
+    var sprice = document.getElementById('sellc').value;
+    var fqty = document.getElementById('qtyc').value;
+
+    var brkg=((Number(bprice)+Number(sprice))*Number(fqty))/1000;
+
+    document.getElementById('brkg').value=brkg;
+    
+}
 function getRand(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -187,12 +199,25 @@ function finalexe(form)
   }
 
 }
+function cview()
+{
+    if(document.getElementById('msg').offsetParent === null)
+    {
+        document.getElementById('msg').style.display= "block" ;
+        document.getElementById('calc').style.display= "none";
+    }
+    else
+    {
+        document.getElementById('msg').style.display= "none";
+        document.getElementById('calc').style.display= "block" ;
+    }
+}
 
 </script>
     </head>
     <body  onload="setdt()">
         <br><br>
-      <div class="bdc">
+      <div class="bdc" id="msg">
         <form>
             <div>
                 <label for="name" class="lbl"> Date :</label>
@@ -574,5 +599,31 @@ function finalexe(form)
            </textarea>
         </form>
                              </div>
+                            
+                             <div class="bdc" id="calc" style="display: none;"><Center>
+                                <form>
+                                    <div >
+                                        <label for="buyc" class="lbl"> Buy :</label>
+                                        <input type="number" step="0.01"  class="lbl" id="buyc" />
+                                      </div><br>
+                                      <div >
+                                        <label for="sellc" class="lbl"> Sell :</label>
+                                        <input type="number" step="0.01"  class="lbl" id="sellc" />
+                                      </div><br>
+                                      <div >
+                                        <label for="qtyc" class="lbl"> Qty :</label>
+                                        <input type="number"   class="lbl" id="qtyc"/>
+                                      </div><br>
+                                    <input type="button"  class="myButton" name="SubmitButto" value="Calculate" onClick="finalcalc(this.form)"><br><br>
+                                      <div >
+                                    Brokrage<br><br>
+                                        <input type="number"   class="lbl" id="brkg"/>
+                                      </div><br>
+                                </form>
+                                </Center>
+                            </div>
+                            <br>
+                            <center><input type="button"   name="sb" value="Switch View" onClick="cview()"></center>
+                            <br>
     </body>
 </html>
